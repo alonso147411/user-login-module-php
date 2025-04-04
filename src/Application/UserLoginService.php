@@ -10,11 +10,10 @@ class UserLoginService
 {
 
     private array $loggedUsers = [];
+    private mixed $facebookSessionManager;
 
-    /**
-     * @param array $loggedUsers
-     */
-    public function __construct(private FacebookSessionManager $facebookSessionManager)
+
+    public function __construct( $facebookSessionManager)
     {
         $this->facebookSessionManager = $facebookSessionManager;
     }
@@ -36,8 +35,7 @@ class UserLoginService
 
     public function getExternalSessions(): int
     {
-        $facebookSessionManager = new FacebookSessionManager();
-        return $facebookSessionManager->getSessions();
+        return $this->facebookSessionManager->getSessions();
     }
 
 }

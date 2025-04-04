@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace UserLoginService\Tests\Application;
 
+use Mockery;
 use PHPUnit\Framework\TestCase;
 use UserLoginService\Application\UserLoginService;
 use UserLoginService\Domain\User;
+use UserLoginService\Infrastructure\FacebookSessionManager;
 
 final class UserLoginServiceTest extends TestCase
 {
@@ -37,5 +39,20 @@ final class UserLoginServiceTest extends TestCase
         $this->assertEquals(['Ana'], $userLoginService->getLoggedUsers());
 
     }
+
+    /**
+     * @test
+     */
+    public function getNumberOfSessions()
+    {
+         $userLoginService = new UserLoginService();
+         $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
+         $facebookSessionManager->allows()->getSessions()->andReturn(4);
+
+         $this->assertEquals(4,$userLoginService->getExternalSessions());
+
+    }
+
+
 
 }

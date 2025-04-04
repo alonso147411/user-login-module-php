@@ -4,10 +4,21 @@ namespace UserLoginService\Application;
 
 use PHPUnit\Util\Exception;
 use UserLoginService\Domain\User;
+use UserLoginService\Infrastructure\FacebookSessionManager;
 
 class UserLoginService
 {
+
     private array $loggedUsers = [];
+
+    /**
+     * @param array $loggedUsers
+     */
+    public function __construct(private FacebookSessionManager $facebookSessionManager)
+    {
+        $this->facebookSessionManager = $facebookSessionManager;
+    }
+
 
     public function manualLogin(User $user): void
     {
@@ -18,11 +29,15 @@ class UserLoginService
         }
     }
 
-
-
     public function getLoggedUsers(): array
     {
-        return ['Ana'];
+        return $this->loggedUsers;
+    }
+
+    public function getExternalSessions(): int
+    {
+        $facebookSessionManager = new FacebookSessionManager();
+        return $facebookSessionManager->getSessions();
     }
 
 }

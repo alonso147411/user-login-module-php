@@ -12,7 +12,7 @@ start:
 	docker start user-login-module-php
 
 test: start
-	docker exec user-login-module-php ./vendor/bin/phpunit tests/$(target) --testdox --colors=always
+	docker exec user-login-module-php ./vendor/bin/phpunit  --colors=always --testdox --verbose tests/$(target)
 
 shell: start
 	docker exec -it user-login-module-php /bin/bash

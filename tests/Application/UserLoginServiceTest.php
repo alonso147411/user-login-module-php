@@ -80,6 +80,44 @@ final class UserLoginServiceTest extends TestCase
       $this->assertEquals([], $userLoginService->getLoggedUsers());
 
   }
+    /**
+     * @test
+     */
+    public function userLogoutNotFound()
+    {
+        $user = new User('Ana');
+        $facebookSessionManager = Mockery::spy(FacebookSessionManager::class);
+
+        $userLoginService = new UserLoginService($facebookSessionManager);
+        $result = $userLoginService->logout($user);
+
+        $this->assertEquals('user not found', $result);
+    }
+
+    /**
+     * @test
+     */
+    public function loginCorrecto()
+    {
+        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
+        $facebookSessionManager->shouldReceive('login')->andReturn(true);
+        $userLoginService = new UserLoginService($facebookSessionManager);
+
+        $this->assertEquals('Login correcto', $userLoginService->login('Ana', '1234'));
+    }
+
+    /**
+     * @test
+     */
+    public function userIsLoginIn()
+    {
+        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
+        $facebookSessionManager->shouldReceive('login')->andReturn('Login correcto');
+        $userLoginService = new UserLoginService($facebookSessionManager);
+
+        $this->assertEquals('Login correcto', $userLoginService->login('Ana', '1234'));
+
+    }
 
 
 

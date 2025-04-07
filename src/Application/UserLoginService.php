@@ -43,7 +43,15 @@ class UserLoginService
             unset($this->loggedUsers[array_search($user->getUserName(), $this->loggedUsers)]);
             return 'ok';
         } else {
-            throw new Exception('user not found');
+            return 'user not found';
+        }
+    }
+
+    function login(string $userName, string $password): string{
+        if ($this->facebookSessionManager->login($userName, $password)) {
+            return 'Login correcto';
+        } else {
+           return 'Login incorrecto';
         }
     }
 

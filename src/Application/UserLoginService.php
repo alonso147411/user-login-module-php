@@ -38,4 +38,13 @@ class UserLoginService
         return $this->facebookSessionManager->getSessions();
     }
 
+    public function logout(User $user): string{
+        if (in_array($user->getUserName(), $this->loggedUsers)) {
+            unset($this->loggedUsers[array_search($user->getUserName(), $this->loggedUsers)]);
+            return 'ok';
+        } else {
+            throw new Exception('user not found');
+        }
+    }
+
 }

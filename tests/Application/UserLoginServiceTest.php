@@ -12,6 +12,10 @@ use UserLoginService\Infrastructure\FacebookSessionManager;
 
 final class UserLoginServiceTest extends TestCase
 {
+    public function tearDown(): void
+    {
+        Mockery::close();
+    }
     /**
      * @test
      */
@@ -58,6 +62,24 @@ final class UserLoginServiceTest extends TestCase
     /**
      * @test
      */
+  public function userLogout()
+  {
+      $user = new User('Ana');
+      $facebookSessionManager = Mockery::spy(FacebookSessionManager::class);
+
+      $userLoginService = new UserLoginService($facebookSessionManager);
+      
+      $userLoginService->manualLogin($user);
+      $result = $userLoginService->logout($user);
+
+      $facebookSessionManager->shouldHaveReceived('logout')
+                              ->with($user)
+                              ->once();
+
+      $this->assertEquals('ok', $result);
+      $this->assertEquals([], $userLoginService->getLoggedUsers());
+
+  }
 
 
 

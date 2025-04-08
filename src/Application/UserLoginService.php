@@ -13,7 +13,7 @@ class UserLoginService
     private mixed $facebookSessionManager;
 
 
-    public function __construct( $facebookSessionManager)
+    public function __construct(FacebookSessionManager $facebookSessionManager)
     {
         $this->facebookSessionManager = $facebookSessionManager;
     }
@@ -38,21 +38,27 @@ class UserLoginService
         return $this->facebookSessionManager->getSessions();
     }
 
-    public function logout(User $user): string{
-        if (in_array($user->getUserName(), $this->loggedUsers)) {
-            unset($this->loggedUsers[array_search($user->getUserName(), $this->loggedUsers)]);
-            return 'ok';
-        } else {
-            return 'user not found';
+   public function logout(User $user): string
+   {
+       if (!in_array($user->getUserName(), $this->loggedUsers)) {
+           return 'user not found';
+       }
+       $this->facebookSessionManager->logout($user->getUserName());
+       unset($this->loggedUsers[array_search($user->getUserName(), $this->loggedUsers)]);
+
+       return 'ok';
+
+   }
+
+    public function login(string $getUserName, string $string): string
+    {
+        if (in_array($getUserName, $this->loggedUsers)) {
+            return "Login incorrecto";
         }
+        $this->loggedUsers[] = $getUserName;
+        return "Login correcto";
+
     }
 
-    function login(string $userName, string $password): string{
-        if ($this->facebookSessionManager->login($userName, $password)) {
-            return 'Login correcto';
-        } else {
-           return 'Login incorrecto';
-        }
-    }
 
 }

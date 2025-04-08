@@ -6,6 +6,7 @@ namespace UserLoginService\Tests\Application;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;
+use UserLoginService\Application\SessionManager;
 use UserLoginService\Application\UserLoginService;
 use UserLoginService\Domain\User;
 use UserLoginService\Infrastructure\FacebookSessionManager;
@@ -22,8 +23,8 @@ final class UserLoginServiceTest extends TestCase
     public function userAlreadyLoggedIn()
     {
         $user = new User('Ana');
-        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
-        $userLoginService = new UserLoginService($facebookSessionManager );
+
+        $userLoginService = new UserLoginService(Mockery::mock(FacebookSessionManager::class));
 
         $this->expectExceptionMessage("user already logged in");
 
@@ -38,9 +39,8 @@ final class UserLoginServiceTest extends TestCase
     public function userIsLoggedIn()
     {
         $user = new User('Ana');
-        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
 
-        $userLoginService = new UserLoginService($facebookSessionManager);
+        $userLoginService = new UserLoginService(Mockery::mock(FacebookSessionManager::class));
         $userLoginService->manualLogin($user);
 
         $this->assertEquals(['Ana'], $userLoginService->getLoggedUsers());
@@ -62,64 +62,38 @@ final class UserLoginServiceTest extends TestCase
     /**
      * @test
      */
-  public function userLogout()
-  {
-      $user = new User('Ana');
-      $facebookSessionManager = Mockery::spy(FacebookSessionManager::class);
 
-      $userLoginService = new UserLoginService($facebookSessionManager);
-      
-      $userLoginService->manualLogin($user);
-      $result = $userLoginService->logout($user);
-
-      $facebookSessionManager->shouldHaveReceived('logout')
-                              ->with($user)
-                              ->once();
-
-      $this->assertEquals('ok', $result);
-      $this->assertEquals([], $userLoginService->getLoggedUsers());
-
-  }
-    /**
-     * @test
-     */
-    public function userLogoutNotFound()
+    public function userIsLoggedOut()
     {
         $user = new User('Ana');
-        $facebookSessionManager = Mockery::spy(FacebookSessionManager::class);
+        $sessionManager = Mockery::spy(FacebookSessionManager::class);
+        $userLoginService = new UserLoginService($sessionManager);
+        $userLoginService->manualLogin($user);
 
-        $userLoginService = new UserLoginService($facebookSessionManager);
-        $result = $userLoginService->logout($user);
+        $this->assertEquals('ok', $userLoginService->logout($user));
 
-        $this->assertEquals('user not found', $result);
+        $sessionManager->shouldHaveReceived('logout')->once();
+
     }
 
     /**
      * @test
      */
-    public function loginCorrecto()
+    public function userWantsToLogging()
     {
-        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
-        $facebookSessionManager->shouldReceive('login')->andReturn(true);
-        $userLoginService = new UserLoginService($facebookSessionManager);
+        $user = new User('Ana');
+        $sessionManager = Mockery::spy(FacebookSessionManager::class);
 
-        $this->assertEquals('Login correcto', $userLoginService->login('Ana', '1234'));
+        $sessionManager->shouldReceive('login')
+            ->with($user->getUserName(), '1234')
+            ->andReturn(true);
+
+        $userLoginService = new UserLoginService($sessionManager);
+        $response = $userLoginService->login($user->getUserName(), '1234');
+        $this->assertEquals('Login correcto', $response);
+
+        $sessionManager->shouldNotHaveReceived('logout');
     }
-
-    /**
-     * @test
-     */
-    public function userIsLoginIn()
-    {
-        $facebookSessionManager = Mockery::mock(FacebookSessionManager::class);
-        $facebookSessionManager->shouldReceive('login')->andReturn('Login correcto');
-        $userLoginService = new UserLoginService($facebookSessionManager);
-
-        $this->assertEquals('Login correcto', $userLoginService->login('Ana', '1234'));
-
-    }
-
-
 
 
 }

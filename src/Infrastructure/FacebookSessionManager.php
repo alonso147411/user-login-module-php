@@ -18,5 +18,10 @@ class FacebookSessionManager implements SessionManager
         return rand(0, 100);
     }
 
+    public function logout(string $getUserName): void
+    {
+
+    }
+
 
 }
